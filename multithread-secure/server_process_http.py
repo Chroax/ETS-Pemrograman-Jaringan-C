@@ -1,5 +1,6 @@
 from socket import *
 import socket
+import multiprocessing
 import threading
 import time
 import sys
@@ -20,12 +21,15 @@ class ProcessTheClient(threading.Thread):
 		while True:
 			try:
 				data = self.connection.recv(32)
+				if not data:
+					break
 				if data:
 					#merubah input dari socket (berupa bytes) ke dalam string
 					#agar bisa mendeteksi \r\n
 					d = data.decode()
 					rcv=rcv+d
 					if rcv[-2:]=='\r\n':
+						print("masuk")
 						#end of command, proses string
 						logging.warning("data dari client: {}" . format(rcv))
 						hasil = httpserver.proses(rcv)
@@ -42,15 +46,13 @@ class ProcessTheClient(threading.Thread):
 			except OSError as e:
 				pass
 		self.connection.close()
-
-
-
-class Server(threading.Thread):
+        
+class Server(multiprocessing.Process):
 	def __init__(self):
 		self.the_clients = []
 		self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		threading.Thread.__init__(self)
+		multiprocessing.Process.__init__(self)
 
 	def run(self):
 		self.my_socket.bind(('0.0.0.0', 8889))
@@ -62,7 +64,6 @@ class Server(threading.Thread):
 			clt = ProcessTheClient(self.connection, self.client_address)
 			clt.start()
 			self.the_clients.append(clt)
-
 
 
 def main():
