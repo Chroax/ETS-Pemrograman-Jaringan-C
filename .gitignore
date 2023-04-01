@@ -1,4 +1,5 @@
-*/.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
 test.md
 .ipynb_checkpoints/*
-*/__pycache__/
+__pycache__/*
+*/__pycache__/*
